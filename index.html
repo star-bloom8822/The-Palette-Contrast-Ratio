@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Palette Contrast Ratio</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --accent: #6ba7f0;
+            --success: #4ade80;
+            --danger: #f87171;
+            --lightness-accent: #c084fc;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            background: var(--card-bg);
+            padding: 48px 30px 30px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 1.6rem;
+            margin-bottom: 16px;
+        }
+
+        .handbook-toggle {
+            background: none;
+            border: 1px dashed rgba(56, 189, 248, 0.5);
+            color: var(--accent);
+            font-size: 0.9rem;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            width: auto;
+            display: inline-block;
+            transition: background 0.2s;
+            font-weight: 600;
+        }
+
+        .handbook-toggle:hover {
+            background: rgba(56, 189, 248, 0.15);
+        }
+
+        .handbook-box {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 0.9rem;
+            text-align: left;
+            margin-bottom: 20px;
+            color: #e2e8f0;
+        }
+
+        .handbook-box h4 {
+            margin: 0 0 8px 0;
+            color: var(--accent);
+            font-size: 1rem;
+        }
+
+        .handbook-box ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .handbook-box li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .mode-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            padding: 9px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0;
+            width: auto;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: #0f172a;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .preview-box {
+            height: 130px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            transition: background 0.2s, color 0.2s;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            padding: 10px;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .target-info {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            color: #e2e8f0;
+        }
+
+        .fatigue-info {
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .input-group, .slider-group {
+            text-align: left;
+            margin-bottom: 16px;
+        }
+
+        .input-group label, .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #e2e8f0;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 4px 8px;
+            transition: border-color 0.2s;
+        }
+
+        .input-row:focus-within {
+            border-color: var(--accent);
+        }
+
+        input[type="text"] {
+            background: transparent;
+            border: none;
+            color: #f8fafc;
+            padding: 8px;
+            font-size: 0.95rem;
+            width: 100%;
+            outline: none;
+        }
+
+        input[type="color"] {
+            appearance: none;
+            -webkit-appearance: none;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            background: none;
+            padding: 0;
+            margin-right: 8px;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+        }
+
+        #lightnessSlider {
+            accent-color: var(--lightness-accent);
+            width: 100%;
+            cursor: pointer;
+            height: 6px;
+        }
+
+        #valDisplay {
+            color: var(--lightness-accent);
+            font-weight: bold;
+        }
+
+        .color-meta {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .color-meta strong {
+            color: var(--accent);
+        }
+
+        .action-btn {
+            background: var(--accent);
+            color: #0f172a;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 5px;
+            transition: opacity 0.2s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        .result-msg {
+            margin-top: 14px;
+            font-weight: bold;
+            min-height: 22px;
+            font-size: 0.95rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Streamlined single-line utility toolbar */
+        .custom-tools-toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .toolbar-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            padding: 7px 8px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .toolbar-btn:hover {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        /* Revert button styled cleanly at the bottom */
+        .undo-btn-container {
+            margin-top: 4px;
+            margin-bottom: 8px;
+            text-align: right;
+        }
+
+        .undo-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 0.82rem;
+            cursor: pointer;
+            font-weight: 600;
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: color 0.2s;
+        }
+
+        .undo-btn:hover {
+            color: var(--text-main);
+            text-decoration: underline;
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 16px;
+                align-items: flex-start;
+                min-height: 100vh;
+            }
+            .container {
+                padding: 40px 20px 24px 20px; /* Balanced top padding */
+                max-width: 100%;
+                border-radius: 12px;
+            }
+            h1 {
+                font-size: 1.48rem; /* Set right to 1.48rem as requested */
+                margin-top: 10px;    /* Reduced top margin since portrait has plenty of vertical space */
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Phone Landscape Mode Fixes (Constrained Vertical Height) */
+        @media screen and (max-height: 600px) and (orientation: landscape) {
+            body {
+                align-items: flex-start;
+                padding: 12px;
+                height: auto;
+                min-height: 100vh;
+            }
+            .container {
+                padding: 30px 24px; /* Increased top/bottom padding to give much more headroom */
+                margin: auto;
+            }
+            h1 {
+                font-size: 1.25rem; /* Balanced title size for landscape view */
+                margin-top: 8px;     /* Added extra headroom space at the top */
+                margin-bottom: 12px;
+            }
+            .handbook-toggle {
+                margin-bottom: 10px;
+                padding: 4px 10px;
+            }
+            .mode-tabs {
+                margin-bottom: 10px;
+            }
+            .score-board {
+                padding: 8px 14px;
+                margin-bottom: 10px;
+            }
+            .preview-box {
+                height: 70px;
+                margin-bottom: 10px;
+                font-size: 1rem;
+            }
+            .target-info, .fatigue-info, .color-meta, .input-group, .slider-group {
+                margin-bottom: 10px;
+            }
+            .fatigue-info {
+                padding: 6px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>The Palette Contrast Ratio</h1>
+
+    <button class="handbook-toggle" onclick="toggleHandbook()">📖 Read Game Rules</button>
+
+    <div id="handbookBox" class="handbook-box hidden">
+        <h4>🎯 Mission Briefing:</h4>
+        <div style="margin-bottom: 12px; font-style: italic; font-size: 0.88rem; color: #cbd5e1;">Controls: Adjust the slider to find a passing color pairing, then lock it in to score points!</div>
+        <ul style="list-style-type: disc;">
+            <li>
+                <strong>Core Parameters:</strong><br>
+                The baseline for web accessibility and screen legibility.
+            </li>
+            <li>
+                <strong>AA Standard (Normal Mode - 4.5:1)</strong><br>
+                Unlocks standard compliance. Safe for everyday interfaces and visibility. 
+            </li>
+            <li>
+                <strong>AAA Enhanced (Hardcore Mode - 7.0:1)</strong><br>
+                Maximum defense against glare, low-contrast, and bright environments.
+            </li>
+        </ul>
+    </div>
+
+    <div class="mode-tabs">
+        <button id="gameTabBtn" class="tab-btn active" onclick="switchMode('game')">Game Mode</button>
+        <button id="customTabBtn" class="tab-btn" onclick="switchMode('custom')">Custom Utility Mode</button>
+    </div>
+
+    <!-- GAME MODE SCOREBOARD -->
+    <div id="gameScoreBoard" class="score-board">
+        <div>Score: <span id="score">0</span></div>
+        <div>Target: <span id="targetRatio">4.5</span>:1 (<span id="targetLevel">AA</span>)</div>
+    </div>
+
+    <div id="preview" class="preview-box">
+        Sample Brand Text
+    </div>
+
+    <div class="target-info">
+        Current Ratio: <strong id="currentRatio">0.0</strong>:1 
+        <span id="passStatus" style="margin-left: 8px;"></span>
+    </div>
+
+    <div id="fatigueInfo" class="fatigue-info">
+        Focus Gauge: <span id="strainStatus" style="color: #cbd5e1;">Analyzing comfort...</span>
+    </div>
+
+    <!-- COPY HEX BUTTON -->
+    <button class="action-btn" id="copyBtn" onclick="copyHexCode()" style="margin-bottom: 15px; background: rgba(255, 255, 255, 0.08); color: var(--text-main); font-size: 0.9rem; padding: 10px; border: 1px solid rgba(255,255,255,0.15); margin-top: 0;">📋 Copy Hex Color</button>
+
+    <!-- GAME CONTROLS -->
+    <div id="gameControls">
+        <div class="color-meta">
+            Brand Hue Locked: <strong id="hueDisplay">0°</strong> | Saturation: <strong id="satDisplay">100%</strong>
+        </div>
+        <div class="slider-group">
+            <label><span>Text Lightness</span> <span id="valDisplay">50%</span></label>
+            <input type="range" id="lightnessSlider" min="0" max="100" value="50">
+        </div>
+        <button class="action-btn" id="actionBtn" onclick="handleAction()">Lock In Color</button>
+    </div>
+
+    <!-- CUSTOM UTILITY CONTROLS -->
+    <div id="customControls" class="hidden">
+        <!-- Single-line unified toolbar for presets and quick actions -->
+        <div class="custom-tools-toolbar">
+            <button class="toolbar-btn" onclick="applyPreset('light')">☀️ Light Mode</button>
+            <button class="toolbar-btn" onclick="applyPreset('highcontrast')">⚡ High Contrast</button>
+            <button class="toolbar-btn" onclick="swapColors()">🔄 Swap</button>
+        </div>
+
+        <div class="input-group">
+            <label>Background Color</label>
+            <div class="input-row">
+                <input type="color" id="customBgColorPicker" value="#0f172a">
+                <input type="text" id="customBgHexInput" value="#0f172a" placeholder="#0f172a">
+            </div>
+        </div>
+        <div class="input-group">
+            <label>Text Color</label>
+            <div class="input-row">
+                <input type="color" id="customTextPicker" value="#f8fafc">
+                <input type="text" id="customTextHexInput" value="#f8fafc" placeholder="#f8fafc">
+            </div>
+        </div>
+        <div class="input-group" style="margin-bottom: 4px;">
+            <label>Test Sample Sentence</label>
+            <div class="input-row" style="padding: 4px 8px;">
+                <input type="text" id="customSampleText" value="Sample Brand Text" placeholder="Type a test sentence...">
+            </div>
+        </div>
+
+        <!-- Revert button safely positioned at the bottom -->
+        <div class="undo-btn-container">
+            <button class="undo-btn" onclick="undoLastColor()">↺ Revert Last Color</button>
+        </div>
+    </div>
+
+    <div id="resultMsg" class="result-msg"></div>
+</div>
+
+<script>
+    let currentMode = "game";
+    let score = 0;
+    let targetRatio = 4.5;
+    let targetLevelName = "AA";
+    let bgHex = "#0f172a";
+    let brandHue = 215;
+    let brandSat = 85;
+    let gameState = "playing";
+    let activeTheme = 1;
+
+    // Undo state trackers for Custom Mode
+    let previousBgHex = "#0f172a";
+    let previousTextHex = "#f8fafc";
+
+    const preview = document.getElementById("preview");
+    const currentRatioText = document.getElementById("currentRatio");
+    const passStatus = document.getElementById("passStatus");
+    const strainStatus = document.getElementById("strainStatus");
+    const resultMsg = document.getElementById("resultMsg");
+    const handbookBox = document.getElementById("handbookBox");
+
+    const slider = document.getElementById("lightnessSlider");
+    const valDisplay = document.getElementById("valDisplay");
+    const scoreDisplay = document.getElementById("score");
+    const targetRatioDisplay = document.getElementById("targetRatio");
+    const targetLevelDisplay = document.getElementById("targetLevel");
+    const hueDisplay = document.getElementById("hueDisplay");
+    const satDisplay = document.getElementById("satDisplay");
+    const actionBtn = document.getElementById("actionBtn");
+
+    const customBgColorPicker = document.getElementById("customBgColorPicker");
+    const customBgHexInput = document.getElementById("customBgHexInput");
+    const customTextPicker = document.getElementById("customTextPicker");
+    const customTextHexInput = document.getElementById("customTextHexInput");
+    const customSampleText = document.getElementById("customSampleText");
+
+    function toggleHandbook() {
+        handbookBox.classList.toggle("hidden");
+    }
+
+    function switchMode(mode) {
+        currentMode = mode;
+        resultMsg.innerText = "";
+        if (mode === "game") {
+            document.getElementById("gameTabBtn").classList.add("active");
+            document.getElementById("customTabBtn").classList.remove("active");
+            document.getElementById("gameScoreBoard").classList.remove("hidden");
+            document.getElementById("gameControls").classList.remove("hidden");
+            document.getElementById("customControls").classList.add("hidden");
+            customSampleText.value = "Sample Brand Text";
+            preview.innerText = "Sample Brand Text";
+            updateGame();
+        } else {
+            document.getElementById("customTabBtn").classList.add("active");
+            document.getElementById("gameTabBtn").classList.remove("active");
+            document.getElementById("gameScoreBoard").classList.add("hidden");
+            document.getElementById("gameControls").classList.add("hidden");
+            document.getElementById("customControls").classList.remove("hidden");
+            updateCustomMode();
+        }
+    }
+
+    function getRandomBg() {
+        const h = Math.floor(Math.random() * 360);
+        const s = Math.floor(Math.random() * 40) + 10;
+        const l = Math.random() > 0.5 ? Math.floor(Math.random() * 15) + 5 : Math.floor(Math.random() * 15) + 80;
+        return hslToHex(h, s, l);
+    }
+
+    function hslToHex(h, s, l) {
+        l /= 100;
+        const a = s * Math.min(l, 1 - l) / 100;
+        const f = n => {
+            const k = (n + h / 30) % 12;
+            const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+            return Math.round(255 * color).toString(16).padStart(2, '0');
+        };
+        return `#${f(0)}${f(4)}${f(8)}`;
+    }
+
+    function hexToRgb(hex) {
+        let cleanHex = hex.replace("#", "");
+        if (cleanHex.length === 3) {
+            cleanHex = cleanHex.split("").map(c => c + c).join("");
+        }
+        const num = parseInt(cleanHex, 16);
+        return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+    }
+
+    function getLuminance(r, g, b) {
+        const a = [r, g, b].map(v => {
+            v /= 255;
+            return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+        });
+        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+    }
+
+    function getContrastRatio(hex1, hex2) {
+        try {
+            const rgb1 = hexToRgb(hex1);
+            const rgb2 = hexToRgb(hex2);
+            const lum1 = getLuminance(rgb1[0], rgb1[1], rgb1[2]);
+            const lum2 = getLuminance(rgb2[0], rgb2[1], rgb2[2]);
+            const brightest = Math.max(lum1, lum2);
+            const darkest = Math.min(lum1, lum2);
+            return (brightest + 0.05) / (darkest + 0.05);
+        } catch {
+            return 1.0;
+        }
+    }
+
+    function evaluateContrastAndFatigue(ratio, bgHexVal, textHexVal) {
+        currentRatioText.innerText = ratio.toFixed(2);
+        
+        if (ratio >= 7.0) {
+            passStatus.innerText = currentMode === "game" ? `✓ PASS (AAA Hardcore)` : `✓ PASS (AAA Compliant)`;
+            passStatus.style.color = "var(--success)";
+        } else if (ratio >= 4.5) {
+            passStatus.innerText = currentMode === "game" ? `✓ PASS (AA Normal)` : `✓ PASS (AA Compliant)`;
+            passStatus.style.color = "var(--success)";
+        } else {
+            passStatus.innerText = currentMode === "game" ? `✗ FAIL (Vision Risk)` : `✗ FAIL (Non-Compliant)`;
+            passStatus.style.color = "var(--danger)";
+        }
+
+        if (ratio < (currentMode === "game" ? targetRatio : 4.5)) {
+            strainStatus.innerText = currentMode === "game" ? (activeTheme === 1 ? "Blocked! Low contrast, glare & strain risk detected" : "Restricted area! Washed out by harsh light or colors") : "⚠ Warning - Contrast Level is below minimum standard";
+            strainStatus.style.color = "var(--danger)";
+        } else {
+            if (currentMode === "game") {
+                strainStatus.innerText = activeTheme === 1 ? "Defeated! Optimized for deep focus & high contrast" : "Cleared! Safe for long reading sessions";
+                strainStatus.style.color = "var(--success)";
+            } else {
+                strainStatus.innerText = "🛡️ Approved — Optimal contrast for readability";
+                strainStatus.style.color = "var(--success)";
+            }
+        }
+    }
+
+    function updateGame() {
+        const lightnessVal = parseInt(slider.value);
+        valDisplay.innerText = `${lightnessVal}%`;
+        const textHex = hslToHex(brandHue, brandSat, lightnessVal);
+
+        preview.style.backgroundColor = bgHex;
+        preview.style.color = textHex;
+
+        const ratio = getContrastRatio(bgHex, textHex);
+        evaluateContrastAndFatigue(ratio, bgHex, textHex);
+
+        if (ratio >= targetRatio) {
+            passStatus.innerText = `✓ PASS (${targetLevelName})`;
+            passStatus.style.color = "var(--success)";
+        } else {
+            passStatus.innerText = `✗ FAIL`;
+            passStatus.style.color = "var(--danger)";
+        }
+    }
+
+    function handleAction() {
+        if (gameState === "playing") {
+            const currentRatio = parseFloat(currentRatioText.innerText);
+            if (currentRatio >= targetRatio) {
+                score += Math.round(currentRatio * 15);
+                scoreDisplay.innerText = score;
+                resultMsg.innerText = `Success! Accessible brand color saved (${currentRatio.toFixed(2)}:1).`;
+                resultMsg.style.color = "var(--success)";
+            } else {
+                resultMsg.innerText = `Failed! Needed ${targetRatio}:1 (${targetLevelName}), got ${currentRatio.toFixed(2)}:1`;
+                resultMsg.style.color = "var(--danger)";
+            }
+            actionBtn.innerText = "Next Brand Color";
+            gameState = "roundOver";
+        } else {
+            bgHex = getRandomBg();
+            brandHue = Math.floor(Math.random() * 360);
+            brandSat = Math.floor(Math.random() * 50) + 50;
+            hueDisplay.innerText = `${brandHue}°`;
+            satDisplay.innerText = `${brandSat}%`;
+            
+            let nextTheme = Math.random() > 0.5 ? 1 : 2;
+            if (nextTheme === activeTheme) {
+                nextTheme = activeTheme === 1 ? 2 : 1;
+            }
+            activeTheme = nextTheme;
+
+            targetRatio = Math.random() > 0.5 ? 4.5 : 7.0;
+            targetLevelName = targetRatio === 4.5 ? "AA" : "AAA";
+            targetRatioDisplay.innerText = targetRatio;
+            targetLevelDisplay.innerText = targetLevelName;
+
+            slider.value = Math.floor(Math.random() * 100);
+            resultMsg.innerText = "";
+            actionBtn.innerText = "Lock In Color";
+            gameState = "playing";
+            updateGame();
+        }
+    }
+
+    function updateCustomMode() {
+        let bg = customBgHexInput.value.trim();
+        let fg = customTextHexInput.value.trim();
+
+        preview.style.backgroundColor = bg;
+        preview.style.color = fg;
+
+        const ratio = getContrastRatio(bg, fg);
+        evaluateContrastAndFatigue(ratio, bg, fg);
+    }
+
+    function saveCustomStateForUndo() {
+        previousBgHex = customBgHexInput.value;
+        previousTextHex = customTextHexInput.value;
+    }
+
+    function undoLastColor() {
+        customBgHexInput.value = previousBgHex;
+        customBgColorPicker.value = previousBgHex;
+        customTextHexInput.value = previousTextHex;
+        customTextPicker.value = previousTextHex;
+        updateCustomMode();
+    }
+
+    function applyPreset(type) {
+        saveCustomStateForUndo();
+        if (type === 'light') {
+            customBgHexInput.value = '#ffffff';
+            customBgColorPicker.value = '#ffffff';
+            customTextHexInput.value = '#1e293b';
+            customTextPicker.value = '#1e293b';
+        } else if (type === 'highcontrast') {
+            customBgHexInput.value = '#000000';
+            customBgColorPicker.value = '#000000';
+            customTextHexInput.value = '#ffffff';
+            customTextPicker.value = '#ffffff';
+        }
+        updateCustomMode();
+    }
+
+    function swapColors() {
+        saveCustomStateForUndo();
+        let tempBg = customBgHexInput.value;
+        let tempFg = customTextHexInput.value;
+
+        customBgHexInput.value = tempFg;
+        customBgColorPicker.value = tempFg;
+        customTextHexInput.value = tempBg;
+        customTextPicker.value = tempBg;
+
+        updateCustomMode();
+    }
+
+    function copyHexCode() {
+        const copyBtn = document.getElementById("copyBtn");
+        let textToCopy = "";
+
+        if (currentMode === "game") {
+            const hex = rgbToHex(preview.style.color);
+            textToCopy = hex;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                copyBtn.innerText = `✓ Copied Text Hex (${hex})!`;
+                setTimeout(() => { copyBtn.innerText = "📋 Copy Hex Color"; }, 2000);
+            });
+        } else {
+            const bgHexVal = customBgHexInput.value.trim();
+            const textHexVal = customTextHexInput.value.trim();
+            textToCopy = `Background: ${bgHexVal}\nText: ${textHexVal}`;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                copyBtn.innerText = "✓ Copied Both Hex Colors!";
+                setTimeout(() => { copyBtn.innerText = "📋 Copy Hex Color"; }, 2000);
+            });
+        }
+    }
+
+    function rgbToHex(rgb) {
+        if (rgb.startsWith("#")) return rgb;
+        const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        if (!match) return rgb;
+        return "#" + match.slice(1, 4).map(x => {
+            const hex = parseInt(x).toString(16);
+            return hex.length === 1 ? "0" + hex : hex;
+        }).join("");
+    }
+
+    customBgColorPicker.addEventListener("input", () => {
+        saveCustomStateForUndo();
+        customBgHexInput.value = customBgColorPicker.value;
+        updateCustomMode();
+    });
+
+    customBgHexInput.addEventListener("input", () => {
+        let val = customBgHexInput.value.trim();
+        if (val.startsWith("#") && val.length === 7) {
+            saveCustomStateForUndo();
+            customBgColorPicker.value = val;
+        }
+        updateCustomMode();
+    });
+
+    customTextPicker.addEventListener("input", () => {
+        saveCustomStateForUndo();
+        customTextHexInput.value = customTextPicker.value;
+        updateCustomMode();
+    });
+
+    customTextHexInput.addEventListener("input", () => {
+        let val = customTextHexInput.value.trim();
+        if (val.startsWith("#") && val.length === 7) {
+            saveCustomStateForUndo();
+            customTextPicker.value = val;
+        }
+        updateCustomMode();
+    });
+
+    customSampleText.addEventListener("input", () => {
+        const text = customSampleText.value.trim();
+        preview.innerText = text === "" ? "Type something..." : text;
+    });
+
+    slider.addEventListener("input", updateGame);
+
+    bgHex = "#0f172a";
+    brandHue = 215;
+    brandSat = 85;
+    hueDisplay.innerText = `${brandHue}°`;
+    satDisplay.innerText = `${brandSat}%`;
+    activeTheme = 1;
+    updateGame();
+</script>
+
+</body>
+</html>
